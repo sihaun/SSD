@@ -1,0 +1,1 @@
+python train_ssd.py --arch mobilenetv3_ssd --datapath dataset_coco --epochs 10 --batch-size 5 --lr 0.001 --save ssd.pt
