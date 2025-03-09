@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils import *
+from utils.utils import InvertedResidualBlock
 
 nn.Conv2d(3, 16, 3, 2, 1)
 

@@ -1,9 +1,7 @@
 import torch
 import warnings
 import os
-import torch.nn as nn
 import torch.optim as optim
-import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
@@ -92,7 +90,7 @@ class Train_SSD():
         self.lr = lr  
         self.optimizer = optim.Adam(self.net.parameters(),lr=lr)
         self.nms_processor = ssd.PostProcessor()
-        self.criterion = ssd.SSDFocalLoss()
+        self.criterion = ssd.MultiBoxLoss()
         self.epoch = epochs
         self.history = np.zeros((0, 5))
         base_epochs = len(self.history)

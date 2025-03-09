@@ -1,10 +1,8 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from typing import List, Tuple
-import torchvision.models.detection
 import torchvision.ops as ops
-import utils
+from utils.utils import hungarian_matching
 
 class PostProcessor:
     def __init__(self, iou_threshold=0.5, score_threshold=0.5):
@@ -98,9 +96,9 @@ class SSD(nn.Module):
 
 
     # Loss 함수
-class SSDFocalLoss(nn.Module):
+class MultiBoxLoss(nn.Module):
     def __init__(self):
-        super(SSDFocalLoss, self).__init__()
+        super(MultiBoxLoss, self).__init__()
         self.l1_loss = nn.SmoothL1Loss()
         self.crossentrophyloss = nn.CrossEntropyLoss()
     
@@ -118,7 +116,7 @@ class SSDFocalLoss(nn.Module):
         
         iou_matrix = ops.box_iou(result_boxes, total_locs)
 
-        matched_pred, matched_target = utils.hungarian_matching(iou_matrix)
+        matched_pred, matched_target = hungarian_matching(iou_matrix)
         for pred, target in zip(matched_pred, matched_target):
             reg_loss = reg_loss + self.l1_loss(result_boxes[pred], total_locs[target])
             cls_loss = cls_loss + self.crossentrophyloss(result_confs[pred], total_labels[target])
