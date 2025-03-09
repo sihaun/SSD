@@ -3,10 +3,10 @@ import torch.nn as nn
 from torch.nn import Conv2d, ModuleList
 from ssd import SSD, PostProcessor
 from models import MobileNetV3
-from utils import InvertedResidualBlock
+from utils.blocks import InvertedResidualBlock
 
 
-def mobilenetv3_ssd(num_classes, is_test=False):
+def mobilenetv3_ssd(num_classes, is_test=False) -> SSD:
     base_net = MobileNetV3().model
     source_layer_indexes = [
         15,

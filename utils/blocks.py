@@ -3,13 +3,13 @@ import torch.nn as nn
 
 class InvertedResidualBlock(nn.Module):
     def __init__(self, 
-                 in_channels, 
-                 expand_channels, 
-                 out_channels, 
-                 kernel_size, 
-                 stride, 
+                 in_channels : int, 
+                 expand_channels : int, 
+                 out_channels : int, 
+                 kernel_size : int, 
+                 stride : int, 
                  activation : str, 
-                 se_reduction=1):
+                 se_reduction : int=1):
         super(InvertedResidualBlock, self).__init__()
         self.pointwise1 = PointwiseConv2d(in_channels, 
                                           expand_channels, 
@@ -28,7 +28,7 @@ class InvertedResidualBlock(nn.Module):
         elif se_reduction < 1:
             torch._assert(False, f"SE Reduction {se_reduction} must be greater than or equal to 1.")
 
-    def forward(self, x):
+    def forward(self, x : torch.Tensor) -> torch.Tensor:
         x = self.pointwise1(x)
         x = self.depthwise(x)
         x = self.pointwise2(x)
@@ -38,10 +38,10 @@ class InvertedResidualBlock(nn.Module):
     
 class DepthwiseConv2d(nn.Module):
     def __init__(self, 
-                 in_channels, 
-                 out_channels, 
-                 kernel_size, 
-                 stride,
+                 in_channels : int, 
+                 out_channels : int, 
+                 kernel_size : int, 
+                 stride : int,
                  **kwargs):
         super(DepthwiseConv2d, self).__init__()
         self.conv = Conv2dNormActivation(in_channels, 
@@ -56,8 +56,8 @@ class DepthwiseConv2d(nn.Module):
     
 class PointwiseConv2d(nn.Module):
     def __init__(self, 
-                 in_channels, 
-                 out_channels, 
+                 in_channels : int, 
+                 out_channels : int, 
                  **kwargs):
         super(PointwiseConv2d, self).__init__()
         self.conv = Conv2dNormActivation(in_channels, 
@@ -71,12 +71,12 @@ class PointwiseConv2d(nn.Module):
 
 class Conv2dNormActivation(nn.Module):
     def __init__(self, 
-                 input_channels, 
-                 output_channels, 
-                 kernel_size, 
-                 stride=1, 
-                 groups=1, 
-                 activation='ReLU', 
+                 input_channels : int, 
+                 output_channels : int, 
+                 kernel_size : int, 
+                 stride : int=1, 
+                 groups : int=1, 
+                 activation : str='ReLU', 
                  **kwargs):
         super(Conv2dNormActivation, self).__init__()
         self.conv = nn.Conv2d(input_channels, 
@@ -100,14 +100,18 @@ class Conv2dNormActivation(nn.Module):
             torch._assert(False, f"Activation function {activation} is not supported.")
 
 
-    def forward(self, x):
+    def forward(self, x : torch.Tensor) -> torch.Tensor:
         x = self.conv(x)
         x = self.norm(x)
         x = self.activation(x)
         return x
     
 class SEBlock(nn.Module):
-    def __init__(self, channel, reduction=16):
+    def __init__(
+            self, 
+            channel : int, 
+            reduction : int=16):
+        
         super(SEBlock, self).__init__()
         # Channel reduction을 위한 첫 번째 FC layer
         self.fc1 = nn.Linear(channel, channel // reduction)
@@ -116,7 +120,7 @@ class SEBlock(nn.Module):
         # Sigmoid 활성화 함수 (채널 중요도 계산)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x):
+    def forward(self, x : torch.Tensor) -> torch.Tensor:
         # Global Average Pooling (GAP)
         b, c, _, _ = x.size()  # b: batch size, c: channels
         gap = torch.mean(x, dim=(2, 3), keepdim=False)  # (B, C) 형태로 GAP을 계산

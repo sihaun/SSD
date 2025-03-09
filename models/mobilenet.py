@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils.utils import InvertedResidualBlock
+from utils.blocks import InvertedResidualBlock
 
 nn.Conv2d(3, 16, 3, 2, 1)
 
@@ -27,7 +27,7 @@ class MobileNetV3(nn.Module):
       )
       self.fc = nn.Linear(160, num_classes)
 
-    def forward(self, x):
+    def forward(self, x : torch.Tensor) -> torch.Tensor:
       x = self.model(x)
       x = F.adaptive_avg_pool2d(x, 1)
       x = x.view(x.size(0), -1)
@@ -35,5 +35,5 @@ class MobileNetV3(nn.Module):
       return x
 
 
-def create_mobilenetv3(num_classes=1000):
+def create_mobilenetv3(num_classes : int=1000) -> MobileNetV3:
   return MobileNetV3(num_classes)

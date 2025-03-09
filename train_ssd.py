@@ -86,7 +86,7 @@ class Train_SSD():
             self.net.load_state_dict(torch.load(weight_path, map_location=self.device))
 
 
-    def fit(self, lr=0.001, epochs=10):
+    def fit(self, lr=0.001, epochs=10) -> np.ndarray:
         self.lr = lr  
         self.optimizer = optim.Adam(self.net.parameters(),lr=lr)
         self.nms_processor = ssd.PostProcessor()

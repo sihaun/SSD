@@ -5,16 +5,26 @@ import torchvision.ops as ops
 from utils.utils import hungarian_matching
 
 class PostProcessor:
-    def __init__(self, iou_threshold=0.5, score_threshold=0.5):
+    def __init__(
+            self, 
+            iou_threshold : float=0.5, 
+            score_threshold : float=0.5):
+        
         self.iou_threshold = iou_threshold
         self.score_threshold = score_threshold
 
-    def __call__(self, locs, confs):
+    def __call__(
+            self, 
+            locs : List[torch.Tensor], 
+            confs : List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        
         result_boxes, result_labels, result_scores, result_confs = [], [], [], []
+
         final_boxes = torch.empty((0, 4), dtype=torch.float32, device='cuda:0')
         final_labels = torch.tensor([], dtype=torch.int64) 
         final_scores = torch.tensor([], dtype=torch.float32)
         final_confs = torch.tensor([], dtype=torch.float32)
+
         for loc, conf in zip(locs, confs):
             scores, labels = conf.softmax(dim=-1).max(dim=-1)
             mask = scores > self.score_threshold
@@ -46,10 +56,18 @@ class PostProcessor:
     
 
 class SSD(nn.Module):
-    def __init__(self, num_classes: int, backbone: nn.ModuleList, source_layer_indexes: List[int],
-                 post_processor: PostProcessor,
-                 extras, classification_headers,
-                 regression_headers, is_test=False, config=None, device=None):
+    def __init__(
+            self, 
+            num_classes: int, 
+            backbone: nn.ModuleList, 
+            source_layer_indexes: List[int],
+            post_processor: PostProcessor,
+            extras : nn.Sequential, 
+            classification_headers : nn.Sequential,
+            regression_headers : nn.Sequential, 
+            is_test : bool=False, 
+            config=None, 
+            device=None):
         """Compose a SSD model using the given components.
         """
         super(SSD, self).__init__()
@@ -73,7 +91,9 @@ class SSD(nn.Module):
             self.priors = config.priors.to(self.device)
             
 
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+            self, 
+            x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         # Feature Map 추출
         x = self.backbone(x)
         for layer in self.extras:
@@ -102,7 +122,13 @@ class MultiBoxLoss(nn.Module):
         self.l1_loss = nn.SmoothL1Loss()
         self.crossentrophyloss = nn.CrossEntropyLoss()
     
-    def forward(self, result_boxes, result_confs, target_locs, target_labels):
+    def forward(
+            self, 
+            result_boxes : torch.Tensor, 
+            result_confs : torch.Tensor, 
+            target_locs : torch.Tensor, 
+            target_labels : torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        
         reg_loss = torch.tensor(0.0, dtype=torch.float32, device=result_boxes.device, requires_grad=True)
         cls_loss = torch.tensor(0.0, dtype=torch.float32, device=result_boxes.device, requires_grad=True)
         train_acc = torch.tensor(0, dtype=torch.int64, device=result_boxes.device) 
