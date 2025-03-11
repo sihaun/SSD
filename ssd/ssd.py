@@ -82,9 +82,7 @@ class SSD(nn.Module):
             self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             
 
-    def forward(
-            self, 
-            x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         # Feature Map 추출
         x = self.backbone(x)
         for layer in self.extras:
