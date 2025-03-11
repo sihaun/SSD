@@ -60,13 +60,10 @@ class SSD(nn.Module):
             self, 
             num_classes: int, 
             backbone: nn.ModuleList, 
-            source_layer_indexes: List[int],
             post_processor: PostProcessor,
             extras : nn.Sequential, 
             classification_headers : nn.Sequential,
-            regression_headers : nn.Sequential, 
-            is_test : bool=False, 
-            config=None, 
+            regression_headers : nn.Sequential,  
             device=None):
         """Compose a SSD model using the given components.
         """
@@ -74,21 +71,15 @@ class SSD(nn.Module):
 
         self.num_classes = num_classes
         self.backbone = backbone
-        self.source_layer_indexes = source_layer_indexes
         self.post_processor = post_processor
         self.extras = extras
         self.classification_headers = classification_headers
         self.regression_headers = regression_headers
-        self.is_test = is_test
-        self.config = config
 
         if device:
             self.device = device
         else:
             self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        if is_test:
-            self.config = config
-            self.priors = config.priors.to(self.device)
             
 
     def forward(

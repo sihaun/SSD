@@ -6,12 +6,8 @@ from models import MobileNetV3
 from utils.blocks import InvertedResidualBlock
 
 
-def mobilenetv3_ssd(num_classes, is_test=False) -> SSD:
+def mobilenetv3_ssd(num_classes : int) -> SSD:
     base_net = MobileNetV3().model
-    source_layer_indexes = [
-        15,
-        16,
-    ]
 
     postProcessor = PostProcessor()
     
@@ -38,5 +34,5 @@ def mobilenetv3_ssd(num_classes, is_test=False) -> SSD:
             if cls.bias is not None:
                 cls.bias.data.zero_() # 바이어스 0으로 초기화
         
-    return SSD(num_classes, base_net, source_layer_indexes, postProcessor,
-               extras, classification_headers, regression_headers, is_test=is_test)
+    return SSD(num_classes, base_net, postProcessor,
+               extras, classification_headers, regression_headers)

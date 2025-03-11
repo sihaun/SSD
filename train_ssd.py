@@ -22,7 +22,10 @@ def hyperparam():
     return args
 
 class Train_SSD():
-    def __init__(self, data_dir, batch_size):
+    def __init__(
+            self, 
+            data_dir : str, 
+            batch_size : int):
         # GPU, 글씨체 설정(Windows OS)
         if os.name == 'nt' and torch.cuda.is_available():
             self.device = torch.device("cuda:0")
@@ -76,7 +79,11 @@ class Train_SSD():
         self.net = None          
 
 
-    def prepare_model(self, arch, label_file_path, weight_path):
+    def prepare_model(
+            self, 
+            arch : str, 
+            label_file_path : str, 
+            weight_path : str):
         self.arch = arch
         self.labels = np.loadtxt(label_file_path, str, delimiter='\t')
         num_classes = len(self.labels)
@@ -86,7 +93,7 @@ class Train_SSD():
             self.net.load_state_dict(torch.load(weight_path, map_location=self.device))
 
 
-    def fit(self, lr=0.001, epochs=10) -> np.ndarray:
+    def fit(self, lr : float=0.001, epochs : int=10) -> np.ndarray:
         self.lr = lr  
         self.optimizer = optim.Adam(self.net.parameters(),lr=lr)
         self.nms_processor = ssd.PostProcessor()
